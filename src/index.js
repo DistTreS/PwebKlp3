@@ -1,74 +1,164 @@
 const express = require('express');
+const session = require('express-session');
 const path = require("path");
 const bcrypt = require("bcrypt");
 const connectToDatabase = require("./config");
+const User = require("./models/user");
 const port = 3000;
 
 const app = express();
 
 app.use(express.json()); 
-app.use(express.urlencoded({extended:false}));
-app.set('view engine','ejs');
+app.use(express.urlencoded({extended:true}));
 app.use(express.static("public"));
+app.set('view engine', 'ejs');
 
-app.get("/",(req, res)=>{
+// Session configuration
+app.use(session({
+    secret: 'thisissecret', 
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false } 
+}));
+
+app.get('/', (req, res) => {
+    res.render('landingpage');
+});
+
+app.get("/login", (req, res) => {
     res.render("login");
 });
 
-app.get("/signup",(req, res)=>{
-    res.render("signup");
+app.get("/register", (req, res) => {
+    if (req.session.role !== 'Administrator') {
+        return res.status(403).send('Access Denied');
+    }
+    res.render("register");
 });
 
-app.get("/profile",(req, res)=>{
-    res.render("profile");
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        const userCollection = await connectToDatabase();
+        const user = await userCollection.findOne({ username });
+        if (user && await bcrypt.compare(password, user.password)) {
+            req.session.userId = user._id.toString(); 
+            req.session.role = user.role;
+            switch(user.role) {
+                case 'Administrator':
+                    res.redirect('/homeadmin');
+                    break;
+                case 'Dosen':
+                    res.redirect('/homedosen');
+                    break;
+                case 'Mahasiswa':
+                    res.redirect('/home');
+                    break;
+                default:
+                    res.redirect('/');
+            }
+        } else {
+            res.send('Invalid username or password');
+        }
+    } catch (error) {
+        res.status(500).send('Error connecting to the database');
+    }
 });
 
-app.get("/changepassword",(req, res)=>{
+
+app.post('/register', async (req, res) => {
+    const { username, password, email, role } = req.body;
+    if (req.session.role !== 'Administrator') {
+        return res.status(403).send('Access Denied');
+    }
+    try {
+        const userCollection = await connectToDatabase();
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await userCollection.insertOne({ username, password: hashedPassword, email, role });
+        res.redirect('/homeadmin');
+    } catch (error) {
+        res.status(500).send('Error connecting to the database');
+    }
+});
+
+app.get('/homeadmin', (req, res) => {
+    if (req.session.role !== 'Administrator') {
+        return res.status(403).send('Access Denied');
+    }
+    res.render('homeadmin');
+});
+
+app.get('/homedosen', (req, res) => {
+    if (req.session.role !== 'Dosen') {
+        return res.status(403).send('Access Denied');
+    }
+    res.render('homedosen');
+});
+
+app.get('/home', (req, res) => {
+    if (req.session.role !== 'Mahasiswa') {
+        return res.status(403).send('Access Denied');
+    }
+    res.render('home');
+});
+
+const { MongoClient, ObjectId } = require('mongodb'); 
+
+// Rute untuk mengambil profil pengguna
+app.get('/profile', async (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
+
+    try {
+        const userCollection = await connectToDatabase();
+        // Konversi userId dari sesi ke ObjectId
+        const user = await userCollection.findOne({ _id: new ObjectId(req.session.userId) });
+        if (user) {
+            res.render('profile', { user });
+        } else {
+            res.status(404).send('User not found');
+        }
+    } catch (error) {
+        res.status(500).send('Error connecting to the database');
+    }
+});
+
+
+app.get("/changepassword", (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
     res.render("changepassword");
 });
 
-app.post("/changepassword",(req, res)=>{
-    //syntax update database
-});
+app.post("/changepassword", async (req, res) => {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
 
-app.post("/signup", async(req,res)=>{
+    if (newPassword !== confirmPassword) {
+        return res.send('New passwords do not match');
+    }
+
     try {
-        const collection = await connectToDatabase();
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
-        const userData = {
-            username: req.body.username,
-            password: hashedPassword,
-            status: req.body.status
-        };
-
-        const result = await collection.insertOne(userData);
-        console.log("User inserted:", result.insertedId); // output id of inserted user
-        res.send("User signed up successfully!");
+        const userCollection = await connectToDatabase();
+        const user = await userCollection.findOne({ _id: new ObjectId(req.session.userId) });
+        if (user && await bcrypt.compare(oldPassword, user.password)) {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            await userCollection.updateOne({ _id: req.session.userId }, { $set: { password: hashedPassword } });
+            res.send('Password changed successfully');
+        } else {
+            res.send('Old password is incorrect');
+        }
     } catch (error) {
-        console.error("Error signing up user:", error);
-        res.status(500).send("Error signing up user. Please try again later.");
+        res.status(500).send('Error connecting to the database');
     }
 });
 
-app.post("/login", async(req,res)=>{
-    try {
-        const collection = await connectToDatabase();
-        const check = await collection.findOne({username: req.body.username});
-        if(!check){
-            res.send("username / password incorect");
-        }
 
-        const isPasswordMatch = await bcrypt.compare(req.body.password, check.password);
-        if (isPasswordMatch) {
-            res.render("home");
-        }else{
-            res.send("username / password incorect");
-        }
-    } catch (error) {
-        res.send("wrong Details");
-    }
-});
 
-app.listen(port,()=>{
+app.listen(port, () => {
     console.log(`Server is running on Port : ${port}`);
 });
