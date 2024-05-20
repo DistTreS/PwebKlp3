@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link href="/css/tailwind.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+
+<div class="max-w-md mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold mb-4">Profile</h1>
+    <p class="mb-2"><strong>Username:</strong> <%= user.username %></p>
+    <p class="mb-2"><strong>Email:</strong> <%= user.email %></p>
+    <p class="mb-4"><strong>Role:</strong> <%= user.role %></p>
+    <div class="flex space-x-4">
+        <a href="/changepassword" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">Change Password</a>
+        <a href="/logout" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">Logout</a>
+    </div>
+</div>
+
+</body>
+</html>
