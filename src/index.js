@@ -18,7 +18,10 @@ app.use(session({
     secret: 'thisissecret', 
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } 
+    cookie: { secure: true },
+    cookie: { maxAge: 60000 } 
+
+
 }));
 
 app.get('/', (req, res) => {
@@ -68,18 +71,21 @@ app.post('/login', async (req, res) => {
 
 app.post('/register', async (req, res) => {
     const { username, password, email, role } = req.body;
-    if (req.session.role !== 'Administrator') {
-        return res.status(403).send('Access Denied');
-    }
     try {
         const userCollection = await connectToDatabase();
+        const existingUser = await userCollection.findOne({ username });
+        if (existingUser) {
+            return res.render('register', { error: 'Username already exists' }); // Kirim pesan error ke view
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
         await userCollection.insertOne({ username, password: hashedPassword, email, role });
-        res.redirect('/homeadmin');
+        res.redirect('/login');
     } catch (error) {
         res.status(500).send('Error connecting to the database');
     }
 });
+
+
 
 app.get('/homeadmin', (req, res) => {
     if (req.session.role !== 'Administrator') {
@@ -132,6 +138,7 @@ app.get("/changepassword", (req, res) => {
     res.render("changepassword");
 });
 
+
 app.post("/changepassword", async (req, res) => {
     const { oldPassword, newPassword, confirmPassword } = req.body;
     if (!req.session.userId) {
@@ -147,7 +154,10 @@ app.post("/changepassword", async (req, res) => {
         const user = await userCollection.findOne({ _id: new ObjectId(req.session.userId) });
         if (user && await bcrypt.compare(oldPassword, user.password)) {
             const hashedPassword = await bcrypt.hash(newPassword, 10);
-            await userCollection.updateOne({ _id: req.session.userId }, { $set: { password: hashedPassword } });
+            await userCollection.updateOne(
+                { _id: new ObjectId(req.session.userId) },
+                { $set: { password: hashedPassword } }
+            );
             res.send('Password changed successfully');
         } else {
             res.send('Old password is incorrect');
@@ -156,6 +166,31 @@ app.post("/changepassword", async (req, res) => {
         res.status(500).send('Error connecting to the database');
     }
 });
+
+app.get('/view-users', async (req, res) => {
+    if (!req.session.userId || req.session.role !== 'Administrator') {
+        return res.redirect('/login');
+    }
+    try {
+        const userCollection = await connectToDatabase();
+        const users = await userCollection.find({}).toArray();
+        res.render('view-users', { users });
+    } catch (error) {
+        res.status(500).send('Error connecting to the database');
+    }
+});
+
+
+app.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).send('Failed to log out');
+        }
+        res.redirect('/login');
+    });
+});
+
+
 
 
 
