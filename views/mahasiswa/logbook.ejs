@@ -1,0 +1,46 @@
+<%- include("../layout/sidebar.ejs") %>
+
+<body>
+  <div class="ml-64 p-4">
+    <h1 class="text-2xl font-bold mb-4">Logbook Entries</h1>
+
+    <!-- Form Pencarian dan Pengurutan -->
+    <form method="get" action="/mahasiswa/logbook" class="mb-4">
+      <input type="text" name="keyword" placeholder="Cari logbook..." class="border p-2 rounded w-full" value="<%= keyword %>">
+      <select name="sort" class="border p-2 rounded w-full mt-2">
+        <option value="" <%= !sort ? 'selected' : '' %>>Urutkan</option>
+        <option value="activity" <%= sort === 'activity' ? 'selected' : '' %>>Activity</option>
+        <option value="date" <%= sort === 'date' ? 'selected' : '' %>>Date</option>
+      </select>
+      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2">Cari</button>
+    </form>
+
+    <% if (logbookEntries.length > 0) { %>
+      <table class="table-auto w-full">
+        <thead>
+          <tr>
+            <th class="px-4 py-2">Date</th>
+            <th class="px-4 py-2">Activity</th>
+            <th class="px-4 py-2">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% logbookEntries.forEach(entry => { %>
+            <tr>
+              <td class="border px-4 py-2"><%= entry.date %></td>
+              <td class="border px-4 py-2"><%= entry.activity %></td>
+              <td class="border px-4 py-2"><%= entry.description %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p>No logbook entries found</p>
+    <% } %>
+    
+    <div class="mt-4">
+      <a href="/mahasiswa/logbook-entry" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add New Entry</a>
+    </div>
+  </div>
+</body>
+</html>

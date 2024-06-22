@@ -1,0 +1,39 @@
+{
+  "name": "tb_pweb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon & npx tailwindcss -i .public/css/tailwind.css -o ./public/css/output.css --watch",
+    "build:css": "npx postcss public/css/tailwind.css -o public/css/output.css"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "autoprefixer": "^10.4.19",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "css": "^3.0.0",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "multer": "^1.4.5-lts.1",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.9.7",
+    "postcss": "^8.4.38",
+    "preline": "^2.3.0",
+    "sequelize": "^6.37.3",
+    "sweetalert2": "^11.6.13",
+    "tailwind": "^4.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "daisyui": "^4.11.1",
+    "tailwindcss": "^3.4.3"
+  }
+}

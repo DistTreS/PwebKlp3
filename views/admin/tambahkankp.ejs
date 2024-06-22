@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah KP</title>
+    <link href="/public/css/output.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<div class="bg-white p-6 rounded shadow-md">
+    <h1 class="text-2xl font-bold mb-4">Tambahkan KP</h1>
+    <form action="/admin/tambahkankp" method="post">
+        <div class="mb-4">
+            <label for="title" class="block text-gray-700">Title</label>
+            <input type="text" id="title" name="title" class="border rounded w-full py-2 px-3 text-gray-700" required>
+        </div>
+        <div class="mb-4">
+            <label for="description" class="block text-gray-700">Description</label>
+            <textarea id="description" name="description" class="border rounded w-full py-2 px-3 text-gray-700" required></textarea>
+        </div>
+        <div class="mb-4">
+            <label for="startDate" class="block text-gray-700">Start Date</label>
+            <input type="date" id="startDate" name="startDate" class="border rounded w-full py-2 px-3 text-gray-700" required>
+        </div>
+        <div class="mb-4">
+            <label for="endDate" class="block text-gray-700">End Date</label>
+            <input type="date" id="endDate" name="endDate" class="border rounded w-full py-2 px-3 text-gray-700" required>
+        </div>
+        <div class="mb-4">
+            <label for="studentId" class="block text-gray-700">Student</label>
+            <select id="studentId" name="studentId" class="border rounded w-full py-2 px-3 text-gray-700" required>
+                <option value="">Select Student</option>
+                <% students.forEach(function(student) { %>
+                    <option value="<%= student.id %>"><%= student.username %> - <%= student.email %></option>
+                <% }); %>
+            </select>
+        </div>
+        <div class="mb-4">
+            <label for="supervisorId" class="block text-gray-700">Supervisor</label>
+            <select id="supervisorId" name="supervisorId" class="border rounded w-full py-2 px-3 text-gray-700" required>
+                <option value="">Select Supervisor</option>
+                <% supervisors.forEach(function(supervisor) { %>
+                    <option value="<%= supervisor.id %>"><%= supervisor.username %> - <%= supervisor.email %></option>
+                <% }); %>
+            </select>
+        </div>
+        <div class="flex justify-end">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Tambah KP</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

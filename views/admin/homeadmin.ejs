@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Home</title>
+    <link href="/public/css/output.css" rel="stylesheet">
+    <style>
+        .btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            color: white;
+            margin-bottom: 10px;
+            text-decoration: none;
+        }
+        .btn-blue { background-color: #1D4ED8; }
+        .btn-blue:hover { background-color: #1E40AF; }
+        .btn-green { background-color: #10B981; }
+        .btn-green:hover { background-color: #059669; }
+        .btn-yellow { background-color: #F59E0B; }
+        .btn-yellow:hover { background-color: #D97706; }
+        .btn-purple { background-color: #8B5CF6; }
+        .btn-purple:hover { background-color: #7C3AED; }
+        .btn-red { background-color: #EF4444; }
+        .btn-red:hover { background-color: #DC2626; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+<div class="bg-white p-6 rounded shadow-md text-center">
+    <h1 class="text-2xl font-bold mb-4">Welcome, Administrator</h1>
+    <div class="space-y-4">
+        <a href="/admin/register" class="btn btn-blue">Register New User</a>
+        <a href="/admin/view-users" class="btn btn-green">View Users</a>
+        <a href="/admin/tambahkankp" class="btn btn-yellow">Add Projects</a>
+        <a href="/admin/view-projects" class="btn btn-purple">View Projects</a>
+        <a href="/logout" class="btn btn-red">Logout</a>
+    </div>
+</div>
+
+</body>
+</html>

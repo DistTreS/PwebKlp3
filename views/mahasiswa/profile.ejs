@@ -1,0 +1,182 @@
+<%- include("../layout/sidebar.ejs") %>
+
+<body class="bg-gray-900 text-white">
+    <div class="ml-64 p-4">
+        <div class="container mx-auto px-4 py-8">
+            <div class="max-w-md mx-auto bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-3xl font-semibold text-gray-200 mb-4">Profile</h2>
+                    <div class="flex items-center mb-6">
+                        <!-- Foto Profil -->
+                        <div class="w-24 h-24 rounded-full overflow-hidden mr-4 border-4 border-blue-500">
+                            <img id="profile-pic" class="w-full h-full object-cover" src="<%= profilePicture %>" alt="Profile Picture">
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-300"><%= username %></h3>
+                            <p class="text-gray-400 text-sm"><%= email %></p>
+                            <p class="text-gray-400 text-sm"><%= role %></p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <!-- Tombol untuk mengganti foto profil -->
+                        <button id="ganti-foto-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4">Ganti Foto Profil</button>
+
+                        <!-- Form untuk mengganti foto profil (tersembunyi) -->
+                        <form id="upload-form" class="hidden" enctype="multipart/form-data">
+                            <input type="file" name="profilePicture" id="profilePicture" class="mb-4">
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4">Simpan</button>
+                        </form>
+                        
+                        <button id="ubah-email-btn" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-4">Ubah Email</button>
+
+                        <!-- Modal untuk mengubah email -->
+                        <div id="ubah-email-modal" class="hidden fixed z-10 inset-0 overflow-y-auto">
+                            <div class="flex items-center justify-center min-h-screen">
+                                <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                                    <h3 class="text-lg font-semibold mb-4">Ubah Email</h3>
+                                    <form id="ubah-email-form">
+                                        <div class="mb-4">
+                                            <label for="new-email" class="block text-sm font-medium text-gray-700">Email Baru</label>
+                                            <input type="email" id="new-email" name="newEmail" class="mt-1 p-2 w-full border border-gray-300 rounded-lg" required>
+                                        </div>
+                                        <div class="flex justify-end">
+                                            <button type="button" id="cancel-btn" class="mr-4 py-2 px-4 bg-gray-500 hover:bg-gray-600 text-white rounded-lg">Batal</button>
+                                            <button type="submit" class="py-2 px-4 bg-green-500 hover:bg-green-600 text-white rounded-lg">Simpan</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tombol untuk Mengubah Kata Sandi -->
+                        <button id="ubah-password-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 mb-4">Ubah Kata Sandi</button>
+
+                        <!-- Modal untuk mengubah kata sandi -->
+                        <div id="ubah-password-modal" class="hidden fixed z-10 inset-0 overflow-y-auto">
+                            <div class="flex items-center justify-center min-h-screen">
+                                <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                                    <h3 class="text-lg font-semibold mb-4">Ubah Kata Sandi</h3>
+                                    <form id="ubah-password-form">
+                                        <div class="mb-4">
+                                            <label for="current-password" class="block text-sm font-medium text-gray-700">Kata Sandi Saat Ini</label>
+                                            <input type="password" id="current-password" name="currentPassword" class="mt-1 p-2 w-full border border-gray-300 rounded-lg" required>
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="new-password" class="block text-sm font-medium text-gray-700">Kata Sandi Baru</label>
+                                            <input type="password" id="new-password" name="newPassword" class="mt-1 p-2 w-full border border-gray-300 rounded-lg" required>
+                                        </div>
+                                        <div class="flex justify-end">
+                                            <button type="button" id="cancel-password-btn" class="mr-4 py-2 px-4 bg-gray-500 hover:bg-gray-600 text-white rounded-lg">Batal</button>
+                                            <button type="submit" class="py-2 px-4 bg-green-500 hover:bg-green-600 text-white rounded-lg">Simpan</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tombol untuk Logout -->
+                        <button onclick="window.location.href='/logout'" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 mb-4">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    const gantiFotoBtn = document.getElementById('ganti-foto-btn');
+    const uploadForm = document.getElementById('upload-form');
+    
+    gantiFotoBtn.addEventListener('click', () => {
+        uploadForm.classList.toggle('hidden');
+    });
+
+    const ubahPasswordBtn = document.getElementById('ubah-password-btn');
+    const ubahPasswordModal = document.getElementById('ubah-password-modal');
+    const cancelPasswordBtn = document.getElementById('cancel-password-btn');
+    const ubahPasswordForm = document.getElementById('ubah-password-form');
+
+    ubahPasswordBtn.addEventListener('click', () => {
+        ubahPasswordModal.classList.remove('hidden');
+    });
+
+    cancelPasswordBtn.addEventListener('click', () => {
+        ubahPasswordModal.classList.add('hidden');
+    });
+
+    ubahPasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(ubahPasswordForm);
+        const response = await fetch('/ubah-password', {
+            method: 'POST',
+            body: JSON.stringify({
+                currentPassword: formData.get('currentPassword'),
+                newPassword: formData.get('newPassword')
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert(result.message);
+            ubahPasswordModal.classList.add('hidden');
+        } else {
+            alert(result.message);
+        }
+    });
+
+    const ubahEmailBtn = document.getElementById('ubah-email-btn');
+    const ubahEmailModal = document.getElementById('ubah-email-modal');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const ubahEmailForm = document.getElementById('ubah-email-form');
+
+    ubahEmailBtn.addEventListener('click', () => {
+        ubahEmailModal.classList.remove('hidden');
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        ubahEmailModal.classList.add('hidden');
+    });
+
+    ubahEmailForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(ubahEmailForm);
+        const response = await fetch('/ubah-email', {
+            method: 'POST',
+            body: JSON.stringify({
+                newEmail: formData.get('newEmail')
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert(result.message);
+            ubahEmailModal.classList.add('hidden');
+        } else {
+            alert(result.message);
+        }
+    });
+
+    uploadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(uploadForm);
+        const response = await fetch('/upload-profile-picture', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            document.getElementById('profile-pic').src = result.filePath;
+            alert(result.message);
+        } else {
+            alert(result.message);
+        }
+    });
+</script>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Users</title>
+    <link href="/public/css/output.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+<div class="bg-white p-6 rounded shadow-md w-full max-w-lg">
+    <h1 class="text-2xl font-bold mb-4">Registered Users</h1>
+    <ul class="list-disc pl-5">
+        <% users.forEach(function(user) { %>
+            <li class="mb-2">
+                <span class="font-medium"><%= user.username %></span> - <%= user.role %>
+            </li>
+        <% }); %>
+    </ul>
+    <a href="/homeadmin" class="block w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 text-center">Back to Admin Home</a>
+</div>
+
+</body>
+</html>

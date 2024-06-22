@@ -1,0 +1,113 @@
+<%- include("../layout/sidebar.ejs") %>
+
+<div class="ml-64 p-4">
+    <!-- Ucapan Selamat Datang -->
+    <h1 class="text-3xl font-bold mb-4">Selamat Datang, <%= username %>!</h1>
+
+    <!-- Sub Judul Dashboard Kerja Praktek -->
+    <h2 class="text-2xl font-semibold mb-2">Dashboard Kerja Praktek</h2>
+
+    <!-- Tanggal Terakhir Diperbarui -->
+    <p class="text-sm text-gray-600 mb-6">Terakhir diperbarui: <%= new Date().toLocaleDateString() %></p>
+
+    <!-- Kotak Statistik -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- Logbook Entries -->
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-2">Jumlah Logbook</h3>
+            <p class="text-3xl font-bold"><%= logbookCount %></p>
+        </div>
+        
+        <!-- Project Files -->
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-2">Jumlah File</h3>
+            <p class="text-3xl font-bold"><%= fileCount %></p>
+        </div>
+
+        <!-- Forum Threads -->
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-2">Jumlah Thread</h3>
+            <p class="text-3xl font-bold"><%= threadCount %></p>
+        </div>
+
+        <!-- Forum Posts -->
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-2">Jumlah Balasan</h3>
+            <p class="text-3xl font-bold"><%= postCount %></p>
+        </div>
+    </div>
+
+    <!-- Kotak Logbook Terbaru -->
+    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <h3 class="text-lg font-semibold mb-4">Logbook Terbaru</h3>
+        <% if (recentLogbooks.length > 0) { %>
+            <table class="table-auto w-full">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2">Date</th>
+                        <th class="px-4 py-2">Activity</th>
+                        <th class="px-4 py-2">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% recentLogbooks.forEach(entry => { %>
+                        <tr>
+                            <td class="border px-4 py-2"><%= entry.date %></td>
+                            <td class="border px-4 py-2"><%= entry.activity %></td>
+                            <td class="border px-4 py-2"><%= entry.description %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>Tidak ada logbook terbaru</p>
+        <% } %>
+    </div>
+
+    <!-- Kotak Grafik -->
+    <div class="bg-white p-4 rounded-lg shadow-md">
+        <h3 class="text-lg font-semibold mb-4">Grafik Kerja Praktek</h3>
+        <div id="chart" class="h-64">
+            <!-- Grafik akan ditempatkan di sini -->
+        </div>
+    </div>
+</div>
+
+<!-- Script untuk grafik (misalnya menggunakan Chart.js) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('chart').getContext('2d');
+    const myChart = new Chart(ctx, {
+        type: 'bar', // atau 'line', 'pie', dll.
+        data: {
+            labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei'],
+            datasets: [{
+                label: 'Contoh Data',
+                data: [12, 19, 3, 5, 2],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>

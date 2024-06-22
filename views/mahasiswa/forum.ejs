@@ -1,0 +1,23 @@
+<%- include("../layout/sidebar.ejs") %>
+
+<body class="bg-gray-100 p-6">
+    <div class="bg-white p-6 rounded shadow-md">
+        <div class="ml-64 p-4">
+        <h1 class="text-2xl font-bold mb-4">Forum Threads</h1>
+        <form action="/mahasiswa/forum/thread" method="post" class="mb-4">
+            <input type="text" name="title" placeholder="Thread title" class="border p-2 rounded w-full mb-2">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Create Thread</button>
+        </form>
+        <ul>
+            <% threads.forEach(thread => { %>
+                <li class="border-b mb-2 pb-2">
+                    <a href="/mahasiswa/thread/<%= thread.thread_id %>" class="text-blue-500 hover:underline"><%= thread.title %></a>
+                    <p class="text-gray-600 text-sm">Created by <%= thread.user.username %> on <%= thread.created_at %></p>
+                </li>
+            <% }) %>
+        </ul>
+        <a href="/home" class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>
