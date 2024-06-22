@@ -1,0 +1,38 @@
+<%- include("../layout/navbar.ejs", { title: "Logbooks Mahasiswa" }) %>
+
+<div class="container mx-auto mt-8">
+    <h1 class="text-3xl font-bold mb-4 text-blue-500 text-center">Logbooks Mahasiswa</h1>
+
+    <div class="overflow-x-auto">
+        <table class="table-auto w-full bg-white shadow-md rounded-lg">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2">Nama Mahasiswa</th>
+                    <th class="px-4 py-2">Tanggal</th>
+                    <th class="px-4 py-2">Judul Project</th>
+                    <th class="px-4 py-2">Judul Logbook</th>
+                    <th class="px-4 py-2">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (logbookEntries.length > 0) { %>
+                    <% logbookEntries.forEach(logbook => { %>
+                        <tr>
+                            <td class="border px-4 py-2"><%= logbook.project.student.username %></td>
+                            <td class="border px-4 py-2"><%= new Date(logbook.date).toLocaleDateString() %></td>
+                            <td class="border px-4 py-2"><%= logbook.project.title %></td>
+                            <td class="border px-4 py-2"><%= logbook.activity %></td>
+                            <td class="border px-4 py-2">
+                                <a href="/dosen/logbooks/<%= logbook.entry_id %>" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md">Lihat Detail</a>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5" class="border px-4 py-2 text-center">Tidak ada logbook yang ditemukan.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>

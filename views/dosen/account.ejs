@@ -1,0 +1,56 @@
+<%- include("../layout/navbar.ejs", { title: "Profil Dosen" }) %>
+
+<div class="container mx-auto mt-8 flex justify-center">
+    <div class="max-w-lg bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h1 class="text-3xl font-bold mb-4 text-blue-500 text-center">Profil Dosen</h1>
+
+        <!-- Foto Profil -->
+        <div class="flex items-center justify-center mb-4">
+            <img src="<%= profilePicture %>" alt="Profile Picture" class="w-32 h-32 rounded-full mb-4">
+        </div>
+
+        <!-- Tombol Ubah Foto Profil -->
+        <div class="flex justify-center mb-4">
+            <button id="toggleFormBtn" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md mr-2 focus:outline-none focus:shadow-outline">Ubah Foto Profil</button>
+        </div>
+
+        <!-- Form untuk Memperbarui Foto Profil -->
+        <form action="/upload-profile-picture" method="POST" enctype="multipart/form-data" class="hidden mb-4" id="formUpdateProfilePicture">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Pilih Foto Profil Baru</label>
+                <input type="file" name="profilePicture" class="text-sm text-gray-500 py-2 px-4 rounded-full border-0 font-semibold bg-blue-50 hover:bg-blue-100" required>
+            </div>
+
+            <div class="flex justify-center">
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Simpan Perubahan</button>
+            </div>
+        </form>
+
+        <!-- Informasi Username dan Email -->
+        <div class="text-center mb-4">
+            <div class="mb-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Username</label>
+                <p class="text-gray-800"><%= username %></p>
+            </div>
+
+            <div class="mb-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                <p class="text-gray-800"><%= email %></p>
+            </div>
+        </div>
+
+        <!-- Tombol Logout -->
+        <div class="flex justify-center">
+            <form action="/logout" method="GET">
+                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md focus:outline-none focus:shadow-outline">Logout</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle form for updating profile picture
+    document.getElementById('toggleFormBtn').addEventListener('click', () => {
+        document.getElementById('formUpdateProfilePicture').classList.toggle('hidden');
+    });
+</script>

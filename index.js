@@ -17,6 +17,8 @@ import sequelize from './config/database.js';
 import ForumThreads from './models/ForumThreads.js';
 import ForumPosts from './models/ForumPosts.js';
 import './models/asosiasi.js';
+import { Parser } from 'json2csv';
+import LogbookComments from "./models/LogbookComments.js";
 
 
 
@@ -110,7 +112,6 @@ app.post('/login', async (req, res) => {
     if (user.role === "mahasiswa") {
       const userId = user.id;
       
-      // Ambil statistik kinerja KP
       // Hitung jumlah entri logbook
       const logbookCount = await LogbookEntries.count({
         include: [{
@@ -152,7 +153,35 @@ app.post('/login', async (req, res) => {
     } else if (user.role === "admin") {
       return res.render("admin/homeadmin", { username: user.username, email: user.email });
     } else if (user.role === "dosen") {
-      return res.render("dosen/homedosen", { username: user.username, email: user.email });
+      const userId = user.id;
+
+      // Ambil jumlah project yang diawasi oleh dosen
+      const projectCount = await Projects.count({
+        where: { supervisor_id: userId }
+      });
+
+      // Ambil jumlah logbook dari mahasiswa yang diawasi oleh dosen
+      const logbookCount = await LogbookEntries.count({
+        include: [{
+          model: Projects,
+          as: 'project',
+          where: { supervisor_id: userId }
+        }]
+      });
+
+      // Ambil jumlah komentar yang diberikan dosen pada logbook
+      const commentCount = await LogbookComments.count({
+        where: { user_id: userId }
+      });
+
+      return res.render("dosen/homedosen", {
+        username: user.username,
+        email: user.email,
+        profilePicture: user.profilePicture || '/public/images/default-profile.jpg',
+        projectCount,
+        logbookCount,
+        commentCount
+      });
     }
 
   } catch (error) {
@@ -160,6 +189,8 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ message: "Terjadi kesalahan server" });
   }
 });
+
+
 
 
 
@@ -178,14 +209,29 @@ app.get('/home', verifySession('mahasiswa'), async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Ambil statistik kinerja KP
-    const logbookCount = await LogbookEntries.count({ where: { user_id: userId } });
-    const fileCount = await Projects.count({ where: { user_id: userId } });
+    const logbookCount = await LogbookEntries.count({
+      include: [{
+        model: Projects,
+        as: 'project',  
+        where: { student_id: userId }
+      }]
+    });
+
+    // Hitung jumlah file yang diunggah
+    const fileCount = await Projects.count({ where: { student_id: userId } });
+
+    // Hitung jumlah thread forum yang dibuat
     const threadCount = await ForumThreads.count({ where: { user_id: userId } });
+
+    // Hitung jumlah balasan forum yang dibuat
     const postCount = await ForumPosts.count({ where: { user_id: userId } });
 
     const recentLogbooks = await LogbookEntries.findAll({
-      where: { user_id: userId },
+      include: [{
+        model: Projects,
+        as: 'project',
+        where: { student_id: userId }
+      }],
       limit: 5,
       order: [['date', 'DESC']]
     });
@@ -468,6 +514,37 @@ app.post('/mahasiswa/logbook-entry', verifySession('mahasiswa'), async (req, res
   }
 });
 
+app.get('/mahasiswa/logbooks/:entryId', verifySession('mahasiswa'), async (req, res) => {
+  try {
+    const entryId = req.params.entryId;
+    const logbook = await LogbookEntries.findOne({
+      where: { id: entryId },
+      include: [
+        {
+          model: Projects,
+          as: 'project',
+          include: [{ model: Users, as: 'student' }, { model: Users, as: 'supervisor' }]
+        },
+        {
+          model: LogbookComments,
+          as: 'comments',
+          include: [{ model: Users, as: 'commenter' }]
+        }
+      ]
+    });
+
+    if (!logbook) {
+      return res.status(404).json({ message: 'Logbook not found' });
+    }
+
+    res.render('mahasiswa/logbookDetail', { logbook });
+  } catch (error) {
+    console.error("Error fetching logbook details:", error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 // Route untuk mengubah password
 app.post('/ubah-password', async (req, res) => {
   try {
@@ -579,17 +656,207 @@ app.get('/logout', (req, res) => {
   });
 });
 
+app.get('/mahasiswa/backup-logbook', async (req, res) => {
+  try {
+      const userId = req.session.userId;
 
-app.post('/Logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      return res.status(500).json({ message: "Gagal logout" });
-    }
-    res.clearCookie('connect.sid');
-    res.redirect('/login');
-  });
+      if (!userId) {
+          return res.status(401).json({ message: 'User not authenticated' });
+      }
+
+      const logbookEntries = await LogbookEntries.findAll({
+          include: [{
+              model: Projects,
+              as: 'project', // Pastikan ini sesuai dengan alias dalam asosiasi
+              where: { student_id: userId }
+          }]
+      });
+
+      const logbookData = logbookEntries.map(entry => ({
+          date: entry.date,
+          activity: entry.activity,
+          description: entry.description
+      }));
+
+      const json2csvParser = new Parser();
+      const csv = json2csvParser.parse(logbookData);
+
+      res.setHeader('Content-Disposition', 'attachment; filename=logbook-backup.csv');
+      res.setHeader('Content-Type', 'text/csv');
+      res.end(csv);
+  } catch (error) {
+      console.error("Error fetching logbook entries for backup:", error);
+      res.status(500).json({ message: "Error fetching logbook entries for backup" });
+  }
 });
-  
+
+
+// Dosen
+app.get('/dosen/home', verifySession('dosen'), async (req, res) => {
+  try {
+      const userId = req.session.userId;
+
+      if (!userId) {
+          return res.status(401).json({ message: 'User not authenticated' });
+      }
+
+      const user = await Users.findByPk(userId);
+
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Ambil jumlah project yang diawasi oleh dosen
+      const projectCount = await Projects.count({
+          where: { supervisor_id: userId }
+      });
+
+      // Ambil jumlah logbook dari mahasiswa yang diawasi oleh dosen
+      const logbookCount = await LogbookEntries.count({
+          include: [{
+              model: Projects,
+              as: 'project',
+              where: { supervisor_id: userId }
+          }]
+      });
+
+      // Ambil jumlah komentar yang diberikan dosen pada logbook
+      const commentCount = await LogbookComments.count({
+          where: { user_id: userId }
+      });
+
+      res.render('dosen/homedosen', {
+          username: user.username,
+          email: user.email,
+          profilePicture: user.profilePicture || '/public/images/default-profile.jpg',
+          projectCount,
+          logbookCount,
+          commentCount
+      });
+  } catch (error) {
+      console.error("Error fetching user data:", error);
+      res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/dosen/account', verifySession('dosen'), async (req, res) => {
+  try {
+      const userId = req.session.userId;
+
+      if (!userId) {
+          return res.status(401).json({ message: 'User not authenticated' });
+      }
+
+      const user = await Users.findByPk(userId);
+
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      res.render('dosen/account', {
+          username: user.username,
+          email: user.email,
+          profilePicture: user.profilePicture || '/public/images/default-profile.jpg'
+      });
+  } catch (error) {
+      console.error("Error fetching user data:", error);
+      res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/dosen/logbooks', verifySession('dosen'), async (req, res) => {
+  try {
+    const userId = req.session.userId;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const logbookEntries = await LogbookEntries.findAll({
+      include: [
+        {
+          model: Projects,
+          as: 'project',
+          where: { supervisor_id: userId },
+          include: [
+            {
+              model: Users,
+              as: 'student',
+              attributes: ['username']
+            }
+          ]
+        }
+      ]
+    });
+
+    res.render('dosen/logbooks', { logbookEntries });
+  } catch (error) {
+    console.error("Error fetching logbook entries:", error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+app.get('/dosen/logbooks/:entryId', verifySession('dosen'), async (req, res) => {
+  try {
+    const entryId = req.params.entryId;
+
+    const logbook = await LogbookEntries.findByPk(entryId, {
+      include: [
+        {
+          model: Projects,
+          as: 'project',
+          include: [
+            {
+              model: Users,
+              as: 'student',
+              attributes: ['username']
+            }
+          ]
+        }
+      ]
+    });
+
+    if (!logbook) {
+      return res.status(404).json({ message: 'Logbook not found' });
+    }
+
+    const comments = await LogbookComments.findAll({
+      where: { entry_id: entryId }
+    });
+
+    res.render('dosen/logbookDetail', { logbook, comments });
+  } catch (error) {
+    console.error("Error fetching logbook details:", error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+app.post('/dosen/logbooks/:entryId/comment', verifySession('dosen'), async (req, res) => {
+  try {
+    const entryId = req.params.entryId;
+    const userId = req.session.userId;
+    const { comment } = req.body;
+
+    if (!comment) {
+      return res.status(400).json({ message: 'Comment cannot be empty' });
+    }
+
+    const newComment = await LogbookComments.create({
+      entry_id: entryId,
+      user_id: userId,
+      content: comment,
+      created_at: new Date(),
+      updated_at: new Date()
+    });
+
+    res.redirect(`/dosen/logbooks/${entryId}`);
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 
 

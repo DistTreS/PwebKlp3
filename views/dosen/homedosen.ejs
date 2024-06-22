@@ -1,16 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dosen Home</title>
-    <link href="/css/output.css" rel="stylesheet">
-</head>
-<body>
+<%- include("../layout/navbar.ejs", { title: "Dosen Home" }) %>
 
-<div class="container">
-    <h1>Welcome, Dosen</h1>
+<div class="container mx-auto py-8 bg-blue-50 c">
+    <h1 class="text-3xl font-bold mb-4">Selamat Datang, <%= username %>!</h1>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold">Jumlah Project yang Diawasi</h2>
+            <p class="text-2xl"><%= projectCount %></p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold">Jumlah Logbook dari Mahasiswa</h2>
+            <p class="text-2xl"><%= logbookCount %></p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold">Jumlah Komentar pada Logbook</h2>
+            <p class="text-2xl"><%= commentCount %></p>
+        </div>
+    </div>
 </div>
-
-</body>
-</html>

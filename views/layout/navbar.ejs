@@ -3,63 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <script src="./node_modules/preline/dist/preline.js"></script>
+    <style>
+        /* Custom styles specific to navbar */
+        .navbar {
+            background-color: #7AC3D3; /* Warna utama dari palet Anda */
+            color: #fff; /* Warna teks putih untuk kontras */
+            padding: 10px;
+        }
+        .navbar h3 {
+            margin: 0;
+            font-size: 1.5rem; /* Ukuran font yang sesuai */
+        }
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar ul li {
+            margin-left: 20px;
+        }
+        .navbar ul li a {
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            padding: 10px;
+        }
+        .navbar ul li a:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* Warna latar belakang saat hover */
+            border-radius: 4px; /* Efek sudut membulat */
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <!-- ========== HEADER ========== -->
-    <header class="w-full bg-white shadow-md py-4">
-        <nav class="container mx-auto px-6 md:px-12 flex items-center justify-between">
-            <div class="flex items-center">
-                <a href="#" class="text-2xl font-bold text-gray-800">Brand</a>
-            </div>
-            <div class="hidden md:flex items-center space-x-6">
-                <a href="#" class="text-gray-800 hover:text-gray-600">Dashboard</a>
-                <a href="#" class="text-gray-800 hover:text-gray-600">Users</a>
-                <a href="#" class="text-gray-800 hover:text-gray-600">Account</a>
-                <a href="#" class="text-gray-800 hover:text-gray-600">Projects</a>
-                <a href="#" class="text-gray-800 hover:text-gray-600">Calendar</a>
-                <a href="#" class="text-gray-800 hover:text-gray-600">Documentation</a>
-                <div class="relative">
-                    <input type="text" class="border rounded-lg py-2 px-4 pl-10 w-full focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search">
-                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4a4 4 0 100 8 4 4 0 000-8zM21 21l-5.2-5.2"></path>
-                        </svg>
-                    </div>
-                </div>
-                <button class="text-gray-800 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405M20.5 15.5A7.5 7.5 0 1116.5 4a7.5 7.5 0 014 13.5zM8 17v1a3 3 0 01-6 0v-1a3 3 0 116 0zM8 17H6M2 12V8a3 3 0 113 0v4m3-4v4m-6 4h6m-3 0v-1a3 3 0 016 0v1"></path>
-                    </svg>
-                </button>
-                <div class="relative">
-                    <button class="relative w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                        <img class="w-full h-full rounded-full" src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2&w=320&h=320&q=80" alt="User">
-                    </button>
-                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 hidden group-hover:block">
-                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">View Profile</a>
-                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Settings</a>
-                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Logout</a>
-                    </div>
-                </div>
-            </div>
-            <div class="md:hidden flex items-center">
-                <button class="outline-none mobile-menu-button">
-                    <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-            </div>
-        </nav>
-        <div class="hidden mobile-menu">
-            <ul class="space-y-2">
-                <li><a href="#" class="block text-sm px-2 py-4 text-gray-800 hover:bg-gray-200">Dashboard</a></li>
-                <li><a href="#" class="block text-sm px-2 py-4 text-gray-800 hover:bg-gray-200">Users</a></li>
-                <li><a href="#" class="block text-sm px-2 py-4 text-gray-800 hover:bg-gray-200">Account</a></li>
-                <li><a href="#" class="block text-sm px-2 py-4 text-gray-800 hover:bg-gray-200">Projects</a></li>
-                <li><a href="#" class="block text-sm px-2 py-4 text-gray-800 hover:bg-gray-200">Calendar</a></li>
-                <li><a href="#" class="block text-sm px-2 py-4 text-gray-800 hover:bg-gray-200">Documentation</a></li>
-            </ul>
+<body>
+    <div class="navbar flex justify-between items-center">
+        <div class="logo ml-4">
+            <h3 class="text-white">Dosen Dashboard</h3>
         </div>
-    </header>
+        <ul class="mr-4">
+            <li><a href="/dosen/home">Home</a></li>
+            <li><a href="/dosen/logbooks">Logbook</a></li>
+            <li><a href="/dosen/account">Account</a></li>
+        </ul>
+    </div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<%- include("../layout/sidebar.ejs") %>
+
+<body>
+    <div class="ml-64 p-4">
+        <h1 class="text-2xl font-bold mb-4">Detail Logbook</h1>
+
+        <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Tanggal</label>
+                <p class="text-gray-800"><%= new Date(logbook.date).toLocaleDateString() %></p>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Judul Logbook</label>
+                <p class="text-gray-800"><%= logbook.activity %></p>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Deskripsi Logbook</label>
+                <p class="text-gray-800"><%= logbook.description %></p>
+            </div>
+
+            <!-- Form untuk mengunggah foto dokumentasi -->
+            <form action="/mahasiswa/logbooks/<%= logbook.id %>/upload-dokumentasi" method="POST" enctype="multipart/form-data" class="mb-4">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Unggah Foto Dokumentasi</label>
+                    <input type="file" name="dokumentasi" class="text-sm text-gray-500 py-2 px-4 rounded-full border-0 font-semibold bg-blue-50 hover:bg-blue-100" required>
+                </div>
+                <div class="flex justify-center">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Unggah</button>
+                </div>
+            </form>
+
+            <!-- Daftar Komentar -->
+            <div>
+                <h2 class="text-xl font-bold mb-2">Komentar Dosen</h2>
+                <% logbook.comments.forEach(comment => { %>
+                    <div class="mb-2 p-2 border rounded-lg">
+                        <p class="text-gray-800"><%= comment.content %></p>
+                        <p class="text-gray-600 text-sm"><%= new Date(comment.created_at).toLocaleString() %></p>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

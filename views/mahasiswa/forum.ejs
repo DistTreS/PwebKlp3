@@ -1,7 +1,7 @@
 <%- include("../layout/sidebar.ejs") %>
 
 <body class="bg-gray-100 p-6">
-    <div class="bg-white p-6 rounded shadow-md">
+    <div class="bg-blue-100 p-12 rounded shadow-md">
         <div class="ml-64 p-4">
         <h1 class="text-2xl font-bold mb-4">Forum Threads</h1>
         <form action="/mahasiswa/forum/thread" method="post" class="mb-4">
@@ -11,7 +11,7 @@
         <ul>
             <% threads.forEach(thread => { %>
                 <li class="border-b mb-2 pb-2">
-                    <a href="/mahasiswa/thread/<%= thread.thread_id %>" class="text-blue-500 hover:underline"><%= thread.title %></a>
+                    <a href="/mahasiswa/thread/<%= thread.thread_id %>" class="text-blue-500 text-2xl font-bold hover:underline"><%= thread.title %></a>
                     <p class="text-gray-600 text-sm">Created by <%= thread.user.username %> on <%= thread.created_at %></p>
                 </li>
             <% }) %>
