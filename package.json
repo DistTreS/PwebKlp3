@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon & npx tailwindcss -i ./public/css/tailwind.css -o ./public/css/output.css --watch",
+    "dev": "node index.js & npx tailwindcss -i ./public/css/tailwind.css -o ./public/css/output.css --watch",
     "build:css": "npx postcss public/css/tailwind.css -o public/css/output.css"
   },
   "keywords": [],
