@@ -14,7 +14,7 @@ const LogbookEntries = db.define('logbookentries', {
         allowNull: false,
         references: {
             model: 'projects',
-            key: 'project_id'  // Pastikan ini sesuai dengan kolom primary key di Projects
+            key: 'project_id'  
         }
     },
     date: {

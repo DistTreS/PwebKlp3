@@ -1,4 +1,3 @@
-// Import modul yang diperlukan
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
@@ -30,7 +29,7 @@ app.use(session({
   secret: 'inirahasia', 
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false, maxAge: 600000 } // secure should be true in production with HTTPS
+  cookie: { secure: false, maxAge: 600000 }
 }));
 
 
@@ -49,7 +48,7 @@ app.use(cookieParser());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// Set up storage engine
+
 const storage = multer.diskStorage({
   destination: './public/uploads/',
   filename: (req, file, cb) => {
@@ -58,18 +57,14 @@ const storage = multer.diskStorage({
 });
 
 
-
-// Initialize upload
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5000000 }, // Limit file size to 1MB
+  limits: { fileSize: 5000000 },
   fileFilter: (req, file, cb) => {
     checkFileType(file, cb);
   },
 }).single('profilePicture');
 
-
-// Check file type
 function checkFileType(file, cb) {
   const filetypes = /jpeg|jpg|png|gif/;
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
@@ -117,7 +112,6 @@ app.post('/login', async (req, res) => {
     if (user.role === "mahasiswa") {
       const userId = user.id;
       
-      // Hitung jumlah entri logbook
       const logbookCount = await LogbookEntries.count({
         include: [{
           model: Projects,
@@ -126,13 +120,10 @@ app.post('/login', async (req, res) => {
         }]
       });
 
-      // Hitung jumlah file yang diunggah
       const fileCount = await Projects.count({ where: { student_id: userId } });
 
-      // Hitung jumlah thread forum yang dibuat
       const threadCount = await ForumThreads.count({ where: { user_id: userId } });
 
-      // Hitung jumlah balasan forum yang dibuat
       const postCount = await ForumPosts.count({ where: { user_id: userId } });
 
       const recentLogbooks = await LogbookEntries.findAll({
@@ -160,12 +151,10 @@ app.post('/login', async (req, res) => {
     } else if (user.role === "dosen") {
       const userId = user.id;
 
-      // Ambil jumlah project yang diawasi oleh dosen
       const projectCount = await Projects.count({
         where: { supervisor_id: userId }
       });
 
-      // Ambil jumlah logbook dari mahasiswa yang diawasi oleh dosen
       const logbookCount = await LogbookEntries.count({
         include: [{
           model: Projects,
@@ -174,12 +163,10 @@ app.post('/login', async (req, res) => {
         }]
       });
 
-      // Ambil jumlah komentar yang diberikan dosen pada logbook
       const commentCount = await LogbookComments.count({
         where: { user_id: userId }
       });
 
-      // Ambil informasi tentang project yang diawasi dan mahasiswa yang mengerjakannya
       const projects = await Projects.findAll({
         where: { supervisor_id: userId },
         include: [{
@@ -196,7 +183,7 @@ app.post('/login', async (req, res) => {
         projectCount,
         logbookCount,
         commentCount,
-        projects: projects.map(project => project.toJSON()) // Pastikan ini dikirimkan
+        projects: projects.map(project => project.toJSON()) 
       });
     }
 
@@ -216,7 +203,6 @@ app.get('/home', verifySession('mahasiswa'), async (req, res) => {
       return res.status(401).json({ message: 'User not authenticated' });
     }
 
-    // Ambil data pengguna dari database
     const user = await Users.findByPk(userId);
 
     if (!user) {
@@ -231,13 +217,10 @@ app.get('/home', verifySession('mahasiswa'), async (req, res) => {
       }]
     });
 
-    // Hitung jumlah file yang diunggah
     const fileCount = await Projects.count({ where: { student_id: userId } });
 
-    // Hitung jumlah thread forum yang dibuat
     const threadCount = await ForumThreads.count({ where: { user_id: userId } });
 
-    // Hitung jumlah balasan forum yang dibuat
     const postCount = await ForumPosts.count({ where: { user_id: userId } });
 
     const recentLogbooks = await LogbookEntries.findAll({
@@ -250,7 +233,6 @@ app.get('/home', verifySession('mahasiswa'), async (req, res) => {
       order: [['date', 'DESC']]
     });
 
-    // Render halaman dengan data pengguna dan statistik
     res.render('mahasiswa/home', {
       username: user.username,
       email: user.email,
@@ -301,7 +283,6 @@ app.post("/register", verifySession('admin'), async (req, res) => {
   }
 });
 
-// Rute untuk menampilkan form tambah proyek KP
 app.get('/admin/tambahkankp', verifySession('admin'), async (req, res) => {
   try {
     const students = await Users.findAll({ where: { role: 'mahasiswa' } });
@@ -328,7 +309,7 @@ app.post('/admin/tambahkankp', verifySession('admin'), async (req, res) => {
       supervisor_id: supervisorId,
     });
 
-    res.redirect('/admin/view-projects'); // Redirect to a page where admin can view all projects
+    res.redirect('/admin/view-projects'); 
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Error adding project' });
@@ -383,7 +364,7 @@ app.get('/mahasiswa/forum', verifySession('mahasiswa'), async (req, res) => {
   }
 });
 
-// Menampilkan thread beserta postnya
+
 app.get('/mahasiswa/thread/:id', verifySession('mahasiswa'), async (req, res) => {
   try {
       const userId = req.session.userId;
@@ -410,7 +391,7 @@ app.get('/mahasiswa/thread/:id', verifySession('mahasiswa'), async (req, res) =>
   }
 });
 
-// Membuat thread baru
+
 app.post('/mahasiswa/forum/thread', verifySession('mahasiswa'), async (req, res) => {
   try {
       const { title } = req.body;
@@ -425,7 +406,7 @@ app.post('/mahasiswa/forum/thread', verifySession('mahasiswa'), async (req, res)
   }
 });
 
-// Menambahkan post baru dalam thread
+
 app.post('/mahasiswa/thread/:id/post', verifySession('mahasiswa'), async (req, res) => {
   try {
       const { content } = req.body;
@@ -521,7 +502,7 @@ app.post('/mahasiswa/logbook-entry', verifySession('mahasiswa'), async (req, res
           activity,
           description
       });
-      res.redirect('/mahasiswa/logbook');  // Atur sesuai dengan halaman yang diinginkan setelah penyimpanan
+      res.redirect('/mahasiswa/logbook'); 
   } catch (error) {
       console.error("Error saving logbook entry:", error);
       res.status(500).json({ message: "Error saving logbook entry" });
@@ -568,34 +549,28 @@ app.get('/mahasiswa/logbook/:entryId', verifySession('mahasiswa'), async (req, r
 });
 
 
-// Route untuk mengubah password
 app.post('/ubah-password', async (req, res) => {
   try {
     const userId = req.session.userId;
     const { currentPassword, newPassword } = req.body;
 
-    // Temukan user berdasarkan userId
     const user = await Users.findOne({
       where: {
         id: userId,
       },
     });
 
-    // Jika user tidak ditemukan
     if (!user) {
       return res.status(404).json({ message: "User tidak ditemukan" });
     }
 
-    // Verifikasi kata sandi saat ini
     const match = await bcrypt.compare(currentPassword, user.password);
     if (!match) {
       return res.status(401).json({ message: "Kata sandi saat ini salah" });
     }
 
-    // Hash kata sandi baru
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
-    // Perbarui kata sandi di database
     await Users.update({ password: hashedNewPassword }, {
       where: {
         id: userId,
@@ -609,7 +584,7 @@ app.post('/ubah-password', async (req, res) => {
   }
 });
 
-// Rute untuk mengubah email
+
 app.post('/ubah-email', async (req, res) => {
   try {
     const userId = req.session.userId;
@@ -624,7 +599,7 @@ app.post('/ubah-email', async (req, res) => {
       { where: { id: userId } }
     );
 
-    req.session.email = newEmail; // Update email di session
+    req.session.email = newEmail;
     res.json({ message: 'Email berhasil diubah' });
   } catch (error) {
     console.log(error);
@@ -656,9 +631,9 @@ app.post('/upload-profile-picture', (req, res) => {
         console.log("User not found:", req.session.userId);
         return res.status(404).json({ message: 'User not found' });
       }
-      // Update user's profile picture
+      
       user.profilePicture = `/uploads/${req.file.filename}`;
-      await user.save(); // Save the updated user object
+      await user.save();
 
       res.json({ message: 'Profile picture updated', filePath: user.profilePicture });
     } catch (error) {
@@ -690,7 +665,7 @@ app.get('/mahasiswa/backup-logbook', async (req, res) => {
       const logbookEntries = await LogbookEntries.findAll({
           include: [{
               model: Projects,
-              as: 'project', // Pastikan ini sesuai dengan alias dalam asosiasi
+              as: 'project',
               where: { student_id: userId }
           }]
       });
@@ -714,7 +689,6 @@ app.get('/mahasiswa/backup-logbook', async (req, res) => {
 });
 
 
-// Dosen
 app.get('/dosen/home', verifySession('dosen'), async (req, res) => {
   try {
       const userId = req.session.userId;
@@ -729,12 +703,10 @@ app.get('/dosen/home', verifySession('dosen'), async (req, res) => {
           return res.status(404).json({ message: 'User not found' });
       }
 
-      // Ambil jumlah project yang diawasi oleh dosen
       const projectCount = await Projects.count({
           where: { supervisor_id: userId }
       });
 
-      // Ambil jumlah logbook dari mahasiswa yang diawasi oleh dosen
       const logbookCount = await LogbookEntries.count({
           include: [{
               model: Projects,
@@ -743,12 +715,10 @@ app.get('/dosen/home', verifySession('dosen'), async (req, res) => {
           }]
       });
 
-      // Ambil jumlah komentar yang diberikan dosen pada logbook
       const commentCount = await LogbookComments.count({
           where: { user_id: userId }
       });
 
-      // Ambil informasi tentang project yang diawasi dan mahasiswa yang mengerjakannya
       const projects = await Projects.findAll({
           where: { supervisor_id: userId },
           include: [{

@@ -1,4 +1,3 @@
-// LogbookComments.js
 import Sequelize from 'sequelize';
 import db from '../config/database.js';
 import LogbookEntries from './LogbookEntries.js';

@@ -31,7 +31,7 @@ const Projects = db.define('projects', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'users', // Name of the users table
+      model: 'users', 
       key: 'id'
     }
   },
@@ -39,7 +39,7 @@ const Projects = db.define('projects', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'users', // Name of the users table
+      model: 'users', 
       key: 'id'
     }
   }

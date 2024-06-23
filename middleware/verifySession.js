@@ -1,4 +1,3 @@
-// middleware/verifysession.js
 export default function verifySession(role) {
     return (req, res, next) => {
       if (!req.session || !req.session.role) {
