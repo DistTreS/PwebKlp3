@@ -22,6 +22,7 @@ import LogbookComments from "./models/LogbookComments.js";
 
 
 
+
 dotenv.config();
 const app = express();
 
@@ -31,6 +32,7 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false, maxAge: 600000 } // secure should be true in production with HTTPS
 }));
+
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')));
 app.use('/public', express.static(path.join(process.cwd(), 'public')));
@@ -55,6 +57,8 @@ const storage = multer.diskStorage({
   },
 });
 
+
+
 // Initialize upload
 const upload = multer({
   storage: storage,
@@ -63,6 +67,7 @@ const upload = multer({
     checkFileType(file, cb);
   },
 }).single('profilePicture');
+
 
 // Check file type
 function checkFileType(file, cb) {
@@ -174,13 +179,24 @@ app.post('/login', async (req, res) => {
         where: { user_id: userId }
       });
 
+      // Ambil informasi tentang project yang diawasi dan mahasiswa yang mengerjakannya
+      const projects = await Projects.findAll({
+        where: { supervisor_id: userId },
+        include: [{
+          model: Users,
+          as: 'student',
+          attributes: ['username']
+        }]
+      });
+
       return res.render("dosen/homedosen", {
         username: user.username,
         email: user.email,
         profilePicture: user.profilePicture || '/public/images/default-profile.jpg',
         projectCount,
         logbookCount,
-        commentCount
+        commentCount,
+        projects: projects.map(project => project.toJSON()) // Pastikan ini dikirimkan
       });
     }
 
@@ -189,8 +205,6 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ message: "Terjadi kesalahan server" });
   }
 });
-
-
 
 
 
@@ -462,7 +476,7 @@ app.get('/mahasiswa/logbook', verifySession('mahasiswa'), async (req, res) => {
         model: LogbookEntries, 
         as: 'logbookEntries', 
         where: whereClause,
-        attributes: ['date', 'activity', 'description'],
+        attributes: ['date', 'activity', 'entry_id' ,'description'],
         order: orderClause
       }]
     });
@@ -514,11 +528,12 @@ app.post('/mahasiswa/logbook-entry', verifySession('mahasiswa'), async (req, res
   }
 });
 
-app.get('/mahasiswa/logbooks/:entryId', verifySession('mahasiswa'), async (req, res) => {
+app.get('/mahasiswa/logbook/:entryId', verifySession('mahasiswa'), async (req, res) => {
   try {
+    
     const entryId = req.params.entryId;
     const logbook = await LogbookEntries.findOne({
-      where: { id: entryId },
+      where: { entry_id: entryId },
       include: [
         {
           model: Projects,
@@ -537,7 +552,15 @@ app.get('/mahasiswa/logbooks/:entryId', verifySession('mahasiswa'), async (req, 
       return res.status(404).json({ message: 'Logbook not found' });
     }
 
-    res.render('mahasiswa/logbookDetail', { logbook });
+    const userId = req.session.userId;
+    const user = await Users.findByPk(userId);
+
+    res.render('mahasiswa/logbookDetail', { 
+      logbook, 
+      username: user.username, 
+      email: user.email, 
+      profilePicture: user.profilePicture|| '/public/images/default-profile.jpg'
+     });
   } catch (error) {
     console.error("Error fetching logbook details:", error);
     res.status(500).json({ message: 'Server error' });
@@ -725,19 +748,31 @@ app.get('/dosen/home', verifySession('dosen'), async (req, res) => {
           where: { user_id: userId }
       });
 
+      // Ambil informasi tentang project yang diawasi dan mahasiswa yang mengerjakannya
+      const projects = await Projects.findAll({
+          where: { supervisor_id: userId },
+          include: [{
+              model: Users,
+              as: 'student',
+              attributes: ['username']
+          }]
+      });
+
       res.render('dosen/homedosen', {
           username: user.username,
           email: user.email,
           profilePicture: user.profilePicture || '/public/images/default-profile.jpg',
           projectCount,
           logbookCount,
-          commentCount
+          commentCount,
+          projects: projects.map(project => project.toJSON())
       });
   } catch (error) {
       console.error("Error fetching user data:", error);
       res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 app.get('/dosen/account', verifySession('dosen'), async (req, res) => {
   try {
@@ -857,7 +892,6 @@ app.post('/dosen/logbooks/:entryId/comment', verifySession('dosen'), async (req,
     res.status(500).json({ message: 'Server error' });
   }
 });
-
 
 
 sequelize.sync()

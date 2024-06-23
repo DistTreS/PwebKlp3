@@ -44,3 +44,6 @@ LogbookComments.belongsTo(Users, {
     as: 'commenter'
   });
   
+Users.hasMany(Projects, { 
+    as: 'projects', 
+    foreignKey: 'student_id' });

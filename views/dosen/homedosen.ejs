@@ -1,6 +1,6 @@
 <%- include("../layout/navbar.ejs", { title: "Dosen Home" }) %>
 
-<div class="container mx-auto py-8 bg-blue-50 c">
+<div class="container mx-auto px-8 py-8 bg-blue-50">
     <h1 class="text-3xl font-bold mb-4">Selamat Datang, <%= username %>!</h1>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-white p-4 rounded-lg shadow-md">
@@ -15,5 +15,28 @@
             <h2 class="text-xl font-semibold">Jumlah Komentar pada Logbook</h2>
             <p class="text-2xl"><%= commentCount %></p>
         </div>
+    </div>
+    <div class="mt-8 bg-white p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-semibold mb-4">Project yang Diawasi</h2>
+        <% if (projects.length > 0) { %>
+            <table class="table-auto w-full">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2">Project Title</th>
+                        <th class="px-4 py-2">Nama Mahasiswa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% projects.forEach(project => { %>
+                        <tr>
+                            <td class="border px-4 py-2"><%= project.title %></td>
+                            <td class="border px-4 py-2"><%= project.student.username %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>Tidak ada project yang diawasi.</p>
+        <% } %>
     </div>
 </div>

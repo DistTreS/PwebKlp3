@@ -26,10 +26,10 @@
                 <tbody>
                     <% logbookEntries.forEach(entry => { %>
                         <tr>
-                            <td class="border px-4 py-2"><%= entry.date %></td>
+                            <td class="border px-4 py-2"><%= new Date(entry.date).toLocaleDateString() %></td>
                             <td class="border px-4 py-2"><%= entry.activity %></td>
                             <td class="border px-4 py-2">
-                                <a href="/mahasiswa/logbooks/<%= entry.id %>" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Lihat Detail</a>
+                                <a href="/mahasiswa/logbook/<%= entry.entry_id %>" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Lihat Detail</a>
                             </td>
                         </tr>
                     <% }) %>
